@@ -1,7 +1,12 @@
 package initProgrem
 
+import (
+	"IOTProject/model"
+	"IOTProject/router"
+)
+
 func Init() {
-	model.initModel()
-	router.initRouter()
+	model.InitModel()
+	router.InitRouter()
 
 }

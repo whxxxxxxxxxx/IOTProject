@@ -2,7 +2,7 @@ package router
 
 import "github.com/gin-gonic/gin"
 
-func initRouter() {
+func InitRouter() {
 	// This is where you would define your routes
 	r := gin.Default()
 
