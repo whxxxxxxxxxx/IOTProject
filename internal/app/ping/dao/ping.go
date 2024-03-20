@@ -2,6 +2,7 @@ package dao
 
 import (
 	"IOTProject/internal/app/ping/model"
+	"IOTProject/store/mysql"
 )
 
 var (

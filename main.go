@@ -1,8 +1,9 @@
 package main
 
-import "IOTProject/initProgrem"
+import (
+	"IOTProject/cmd"
+)
 
 func main() {
-
-	initProgrem.Init()
+	cmd.Execute()
 }
