@@ -1,9 +1,9 @@
 package config
 
 import (
+	"IOTProject/config"
 	"github.com/spf13/cobra"
 	"os"
-	"scholarship-v4/config"
 )
 
 var (

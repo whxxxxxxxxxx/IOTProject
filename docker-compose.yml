@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  IOT-v1-DolphinDB:
+    image: dolphindb/dolphindb:v1.30.22
+    restart: always
+    volumes:
+      - ./init.ddb:/data/ddb/server/init.ddb  # 挂载启动脚本
+    command: [ "/bin/sh", "-c", "cd /data/ddb/server && chmod +x dolphindb && ./dolphindb -console < init.ddb && echo 'Command executed successfully'" ]
+    ports:
+      - "20848:8848"
+  IOT-v1-Mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'devices'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+    ports:
+      - "20306:3306"

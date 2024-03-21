@@ -4,19 +4,18 @@ import (
 	"IOTProject/config"
 	"IOTProject/internal/app/appInitialize"
 	"IOTProject/kernel"
+	"IOTProject/pkg/ip"
+	"IOTProject/pkg/stringx"
 	"IOTProject/store/mysql"
-	"IOTProject/store/rds"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"net"
+	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 )
 
@@ -78,7 +77,6 @@ func setUp() {
 // 存储介质连接
 func loadStore() {
 	engine.SKLMySQL = mysql.MustNewMysqlOrm(config.GetConfig().SKLMysql)
-	engine.MainCache = rds.MustNewRedis(config.GetConfig().MainCache)
 }
 
 // 加载应用，包含多个生命周期
@@ -120,22 +118,16 @@ func loadApp() {
 // 启动服务
 func run() {
 	port := config.GetConfig().Port
-	// 开启 tcp 监听
-	conn, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
-	if err != nil {
-		logx.SystemLogger.Errorw("failed to listen", zap.Field{Key: "error", Type: zapcore.StringType, String: err.Error()})
+
+	engine.HttpServer = &http.Server{
+		Addr:    ":8080",
+		Handler: engine.GIN,
 	}
-
 	go func() {
-		if _err := engine.Grpc.Serve(grpcL); _err != nil {
-			logx.SystemLogger.Errorw("failed to start to listen and serve grpc", zap.Field{Key: "error", Type: zapcore.StringType, String: _err.Error()})
-		}
-	}()
-
-	go func() {
-		logx.SystemLogger.Info("mux listen starting...")
-		if _err := tcpMux.Serve(); _err != nil {
-			logx.SystemLogger.Errorw("failed to serve mux", zap.Field{Key: "error", Type: zapcore.StringType, String: _err.Error()})
+		// 服务连接
+		if err := engine.HttpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			println(stringx.Green("listen: %s\n"))
+			println(stringx.Yellow("Server run failed: %s\n"), err)
 		}
 	}()
 
@@ -147,27 +139,11 @@ func run() {
 		engine.CurrentIpList = append(engine.CurrentIpList, host)
 		println(fmt.Sprintf("-  Network: http://%s:%s", host, port))
 	}
-	// 健康检查设置为可接受服务
-	healthz.Health.Set(true)
 
-	// 监听退出信号
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
 	<-quit
-
-	// 健康检查设置为不可接受服务
-	healthz.Health.Set(false)
-
 	println(stringx.Blue("Shutting down server..."))
-	//tracex.StopAgent()
-
-	if engine.SlsClient != nil {
-		if err = engine.SlsClient.Close(); err != nil {
-			println(stringx.Yellow("Sls client close failed: " + err.Error()))
-		}
-	}
-	logx.SystemLogger.Stop()
-	logx.ServiceLogger.Stop()
 
 	ctx, cancel := context.WithTimeout(engine.Ctx, 5*time.Second)
 	defer engine.Cancel()

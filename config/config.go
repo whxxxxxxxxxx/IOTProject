@@ -1,12 +1,12 @@
 package config
 
 import (
+	"IOTProject/pkg/fs"
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
-	"scholarship-v4/pkg/fs"
 )
 
 var serveConfig *GlobalConfig

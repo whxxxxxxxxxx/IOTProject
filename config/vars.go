@@ -2,7 +2,6 @@ package config
 
 import (
 	"IOTProject/store/mysql"
-	"IOTProject/store/rds"
 )
 
 type GlobalConfig struct {
@@ -13,5 +12,4 @@ type GlobalConfig struct {
 	Listen      string        `yaml:"Listen"`
 	Port        string        `yaml:"Port"`
 	SKLMysql    mysql.OrmConf `yaml:"SKLMysql"`
-	MainCache   rds.RedisConf `yaml:"MainCache"`
 }
