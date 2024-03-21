@@ -1,0 +1,14 @@
+Mode: debug
+ProgramName: ""
+BaseURL: ""
+Author: ""
+Listen: "0.0.0.0"
+Port: "8001"
+SKLMysql:
+    Host: "localhost"
+    Port: "20306"
+    User: "user"
+    Pass: "password"
+    Database: "devices"
+    Debug: false
+    Trace: false
