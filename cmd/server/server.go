@@ -120,7 +120,7 @@ func run() {
 	port := config.GetConfig().Port
 
 	engine.HttpServer = &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8001",
 		Handler: engine.GIN,
 	}
 	go func() {
