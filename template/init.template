@@ -2,9 +2,9 @@ package {{.appName}}
 
 import (
 	"context"
-	"scholarship-v4/core/kernel"
-	"scholarship-v4/internal/app"
-	"scholarship-v4/internal/app/{{.appName}}/router"
+	"IOTProject/kernel"
+	"IOTProject/internal/app"
+	"IOTProject/internal/app/{{.appName}}/router"
 	"sync"
 )
 
@@ -20,6 +20,7 @@ func (p *{{.appNameExport}}) Info() string {
 }
 
 func (p *{{.appNameExport}}) PreInit(engine *kernel.Engine) error {
+    //dao.InitMS(engine.SKLMySQL.DB)
 	return nil
 }
 
@@ -33,7 +34,7 @@ func (p *{{.appNameExport}}) PostInit(*kernel.Engine) error {
 
 func (p *{{.appNameExport}}) Load(engine *kernel.Engine) error {
 	// 加载flamego api
-	router.App{{.appNameExport}}Init(engine.Fg)
+	router.App{{.appNameExport}}Init(engine.GIN)
 	return nil
 }
 
@@ -53,7 +54,6 @@ func (p *{{.appNameExport}}) Stop(wg *sync.WaitGroup, ctx context.Context) error
 
 func (p *{{.appNameExport}}) OnConfigChange() func(*kernel.Engine) error {
 	return func(engine *kernel.Engine) error {
-
 		return nil
 	}
 }

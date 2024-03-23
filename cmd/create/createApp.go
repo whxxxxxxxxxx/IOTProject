@@ -43,11 +43,11 @@ func load() error {
 	}
 
 	router := path.Join(dir, appName, "router")
-	handlerMain := path.Join(dir, appName, "handler", "v1")
+	handlerMain := path.Join(dir, appName, "handler")
 	dto := path.Join(dir, appName, "dto")
 	dao := path.Join(dir, appName, "dao")
 	daoInit := path.Join(dir, appName, "dao")
-	service := path.Join(dir, appName, "service", "gw")
+	service := path.Join(dir, appName, "service")
 	model := path.Join(dir, appName, "model")
 	trigger := path.Join(dir, "appInitialize")
 	init := path.Join(dir, appName)

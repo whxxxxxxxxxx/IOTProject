@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"context"
 	"gorm.io/gorm"
 	"IOTProject/internal/app/{{.appName}}/model"
 )
