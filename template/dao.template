@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 	"gorm.io/gorm"
-	"scholarship-v4/internal/app/{{.appName}}/model"
+	"IOTProject/internal/app/{{.appName}}/model"
 )
 
 type {{.appName}} struct {

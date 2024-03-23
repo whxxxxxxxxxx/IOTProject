@@ -5,9 +5,8 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"scholarship-v4/core/errorx"
-	"scholarship-v4/core/tracex"
-	{{.appName}}V1 "scholarship-v4/gen/proto/{{.appName}}/v1"
+	"IOTProject/core/errorx"
+	"IOTProject/core/tracex"
 )
 
 type S struct {

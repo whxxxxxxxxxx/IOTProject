@@ -1,6 +1,6 @@
 package appInitialize
 
-import "scholarship-v4/internal/app/{{.appName}}"
+import "IOTProject/internal/app/{{.appName}}"
 
 func init() {
 	apps = append(apps, &{{.appName}}.{{.appNameExport}}{Name: "{{.appNameExport}} module"})
