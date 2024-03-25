@@ -11,5 +11,5 @@ type device struct {
 
 func (u *device) Init(db *gorm.DB) (err error) {
 	u.DB = db
-	return db.AutoMigrate(&model.Device{})
+	return db.AutoMigrate(&model.Device{}, &model.Location{}, &model.NetworkInfo{}, &model.Security{})
 }
