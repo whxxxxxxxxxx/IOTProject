@@ -7,6 +7,7 @@ import (
 	model2 "IOTProject/internal/model"
 	"IOTProject/middleware/response"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -73,28 +74,28 @@ func UpdateDevice(c *gin.Context) {
 	err := dao.Device.Model(&model.Device{}).
 		WithContext(c.Request.Context()).
 		Where("id = ?", id).First(&deviceItem).Error
-	deviceItem = model.Device{
-		DeviceNo:     req.DeviceId,
-		Name:         req.Name,
-		ModelData:    req.Model,
-		SerialNumber: req.SerialNumber,
-		Location: model.Location{
-			Latitude:  req.Location.Latitude,
-			Longitude: req.Location.Longitude,
-		},
-		NetworkInfo: model.NetworkInfo{
-			IPAddress:  req.NetworkInfo.IpAddress,
-			MacAddress: req.NetworkInfo.MacAddress,
-		},
-		Security: model.Security{
-			EncryptionStatus:     req.Security.EncryptionStatus,
-			AuthenticationMethod: req.Security.AuthenticationMethod,
-		},
+	deviceItem.DeviceNo = req.DeviceId
+	deviceItem.Name = req.Name
+	deviceItem.ModelData = req.Model
+	deviceItem.SerialNumber = req.SerialNumber
+	deviceItem.Location = model.Location{
+		Latitude:  req.Location.Latitude,
+		Longitude: req.Location.Longitude,
+	}
+	deviceItem.NetworkInfo = model.NetworkInfo{
+		IPAddress:  req.NetworkInfo.IpAddress,
+		MacAddress: req.NetworkInfo.MacAddress,
+	}
+	deviceItem.Security = model.Security{
+		EncryptionStatus:     req.Security.EncryptionStatus,
+		AuthenticationMethod: req.Security.AuthenticationMethod,
 	}
 
-	err = dao.Device.Model(&model.Device{}).
+	err = dao.Device.Model(&deviceItem).
+		Session(&gorm.Session{FullSaveAssociations: true}).
 		WithContext(c.Request.Context()).
-		Save(&deviceItem).Error
+		Where("id = ?", id).
+		Updates(&deviceItem).Error
 	if err != nil {
 		response.ServiceErr(c, err)
 		return
