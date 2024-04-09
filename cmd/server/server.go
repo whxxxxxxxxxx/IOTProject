@@ -77,6 +77,7 @@ func setUp() {
 // 存储介质连接
 func loadStore() {
 	engine.SKLMySQL = mysql.MustNewMysqlOrm(config.GetConfig().SKLMysql)
+
 }
 
 // 加载应用，包含多个生命周期
