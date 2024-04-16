@@ -3,7 +3,7 @@ ProgramName: ""
 BaseURL: ""
 Author: ""
 Listen: "0.0.0.0"
-Port: "9001"
+Port: "8001"
 MainPostgres:
   Host: "localhost"
   Port: "19432"

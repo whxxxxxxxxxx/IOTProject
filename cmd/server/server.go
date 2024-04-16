@@ -66,12 +66,8 @@ func setUp() {
 	}
 
 	// 初始化 Gin
-	engine.GIN = gin.New()
-	// 使用内置的 Recovery 中间件，用于恢复任何panic，如果有panic的话
-	engine.GIN.Use(gin.Recovery())
+	engine.GIN = gin.Default()
 	engine.GIN.Use(cors.Default())
-	engine.GIN.Use(gin.Logger())
-
 }
 
 // 存储介质连接
@@ -124,11 +120,12 @@ func run() {
 		Addr:    ":8001",
 		Handler: engine.GIN,
 	}
+
 	go func() {
 		// 服务连接
 		if err := engine.HttpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			println(stringx.Green("listen: %s\n"))
-			println(stringx.Yellow("Server run failed: %s\n"), err)
+			fmt.Printf(stringx.Green("listen: %s\n"), port)
+			fmt.Printf(stringx.Yellow("Server run failed: %s\n"), err)
 		}
 	}()
 
