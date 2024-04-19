@@ -135,3 +135,64 @@ func ListDevices(c *gin.Context) {
 	}
 	response.HTTPSuccess(c, devices)
 }
+
+func ListDevicesPage(c *gin.Context) {
+	var req dto.DeviceItemPageReq
+	var totalDevices dto.DeviceItemPage
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	var devices []model.Device
+	err := dao.Device.Model(&model.Device{}).
+		Preload("Location").
+		Preload("NetworkInfo").
+		Preload("Security").
+		WithContext(c.Request.Context()).
+		Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&devices).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	totalDevices.Total = len(devices)
+	totalDevices.List = devices
+	response.HTTPSuccess(c, totalDevices)
+}
+
+func SearchDevices(c *gin.Context) {
+	var req dto.DeviceItemSearchReq
+	var totalDevices dto.DeviceItemPage
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	var devices []model.Device
+	err := dao.Device.Model(&model.Device{}).
+		Preload("Location").
+		Preload("NetworkInfo").
+		Preload("Security").
+		Scopes(func(db *gorm.DB) *gorm.DB {
+			if req.DeviceNo != "" {
+				db = db.Where("device_no LIKE ?", "%"+req.DeviceNo+"%")
+			}
+			if req.Name != "" {
+				db = db.Where("name LIKE ?", "%"+req.Name+"%")
+			}
+			if req.Model != "" {
+				db = db.Where("model LIKE ?", "%"+req.Model+"%")
+			}
+			if req.SerialNumber != "" {
+				db = db.Where("serial_number LIKE ?", "%"+req.SerialNumber+"%")
+			}
+			return db
+		}).
+		WithContext(c.Request.Context()).
+		Offset((req.PageReq.Page - 1) * req.PageReq.PageSize).Limit(req.PageReq.PageSize).Find(&devices).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	totalDevices.Total = len(devices)
+	totalDevices.List = devices
+	response.HTTPSuccess(c, totalDevices)
+}
