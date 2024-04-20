@@ -26,6 +26,12 @@ type DeviceItemPage struct {
 	List  []model.Device `json:"list"`
 }
 
+type DeviceItemPage2 struct {
+	Total     int            `json:"total"`
+	List      []model.Device `json:"list"`
+	TotalPage int            `json:"total_page"`
+}
+
 type DeviceItemPageReq struct {
 	Page     int `json:"page"`
 	PageSize int `json:"page_size"`
