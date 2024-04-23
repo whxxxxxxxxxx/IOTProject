@@ -16,11 +16,15 @@ func AppDeviceInit(e *gin.Engine) {
 
 	deviceGroup := e.Group("/device")
 	{
-		deviceGroup.POST("", handler.CreateDevice)       // 创建设备
-		deviceGroup.DELETE("/:id", handler.DeleteDevice) // 删除设备
-		deviceGroup.PUT("/:id", handler.UpdateDevice)    // 更新设备
-		deviceGroup.GET("/:id", handler.GetDevice)       // 获取单个设备信息
-		deviceGroup.GET("", handler.ListDevices)         // 获取所有设备信息
+		deviceGroup.POST("", handler.CreateDevice)                // 创建设备
+		deviceGroup.DELETE("/:id", handler.DeleteDevice)          // 删除设备
+		deviceGroup.PUT("/:id", handler.UpdateDevice)             // 更新设备
+		deviceGroup.GET("/:id", handler.GetDevice)                // 获取单个设备信息
+		deviceGroup.GET("", handler.ListDevices)                  // 获取所有设备信息
+		deviceGroup.POST("/page", handler.ListDevicesPage)        // 分页获取设备信息
+		deviceGroup.POST("/page2", handler.ListDevicesPage2)      // 分页获取设备信息
+		deviceGroup.POST("/search/page", handler.SearchDevices)   //分页搜索设备信息
+		deviceGroup.POST("/search/page2", handler.SearchDevices2) //分页搜索设备信息
 	}
 
 	e.GET("/device/v1/err", func(c *gin.Context) {

@@ -12,3 +12,13 @@ SKLMysql:
     Database: "devices"
     Debug: false
     Trace: false
+TDEngine:
+    Host: "localhost"
+    Port: "6041"
+    User: "root"
+    Pass: "taosdata"
+    Database: "power"
+    DriverName: "taosRestful"
+
+
+
