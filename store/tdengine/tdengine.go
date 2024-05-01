@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"sync"
 
 	_ "github.com/taosdata/driver-go/v3/taosRestful"
 )
@@ -21,6 +22,8 @@ type (
 	}
 	Option func(r *Orm)
 )
+
+var tdInit = sync.Once{}
 
 func (r *Orm) GetOrm() *sql.DB {
 	return r.DB
@@ -84,9 +87,17 @@ func newOrm(opts ...Option) (*Orm, error) {
 	for _, opt := range opts {
 		opt(m)
 	}
-	var dsn = fmt.Sprintf("%s:%s@http(%s:%s)/%s",
-		m.User, m.Pass, m.Host, m.Port, m.Database)
-	db, err := sql.Open(m.DriverName, dsn)
-	m.DB = db
+	var err error
+	tdInit.Do(func() {
+		dsn := fmt.Sprintf("%s:%s@http(%s:%s)/%s",
+			m.User, m.Pass, m.Host, m.Port, m.Database)
+		db, err := sql.Open(m.DriverName, dsn)
+		_, err = db.Exec("create database if not exists " + m.Database)
+		if err != nil {
+			return
+		}
+		m.DB = db
+	})
+
 	return m, err
 }

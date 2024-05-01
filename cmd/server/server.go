@@ -7,6 +7,7 @@ import (
 	"IOTProject/pkg/ip"
 	"IOTProject/pkg/stringx"
 	"IOTProject/store/mysql"
+	"IOTProject/store/tdengine"
 	"context"
 	"errors"
 	"fmt"
@@ -73,7 +74,7 @@ func setUp() {
 // 存储介质连接
 func loadStore() {
 	engine.SKLMySQL = mysql.MustNewMysqlOrm(config.GetConfig().SKLMysql)
-
+	engine.TDEngine = tdengine.MustNewTDEngineOrm(config.GetConfig().TDEngine)
 }
 
 // 加载应用，包含多个生命周期
@@ -82,6 +83,7 @@ func loadApp() {
 	for _, app := range apps {
 		_err := app.PreInit(engine)
 		if _err != nil {
+			fmt.Errorf("app %s PreInit failed: %s", app.Info(), _err)
 			os.Exit(1)
 		}
 	}
@@ -146,6 +148,7 @@ func run() {
 	ctx, cancel := context.WithTimeout(engine.Ctx, 5*time.Second)
 	defer engine.Cancel()
 	defer cancel()
+	defer engine.TDEngine.DB.Close()
 
 	if err := engine.HttpServer.Shutdown(ctx); err != nil {
 		println(stringx.Yellow("Server forced to shutdown: " + err.Error()))

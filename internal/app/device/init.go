@@ -22,8 +22,8 @@ func (p *Device) Info() string {
 }
 
 func (p *Device) PreInit(engine *kernel.Engine) error {
-	dao.InitMS(engine.SKLMySQL.DB)
-	return nil
+	err := dao.InitMS(engine.SKLMySQL.DB)
+	return err
 }
 
 func (p *Device) Init(*kernel.Engine) error {

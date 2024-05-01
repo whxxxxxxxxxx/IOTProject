@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strconv"
 )
 
 func CreateDevice(c *gin.Context) {
@@ -123,18 +124,45 @@ func GetDevice(c *gin.Context) {
 }
 
 func ListDevices(c *gin.Context) {
-	var devices []model.Device
-	err := dao.Device.Model(&model.Device{}).
-		Preload("Location").
-		Preload("NetworkInfo").
-		Preload("Security").
-		WithContext(c.Request.Context()).
-		Find(&devices).Error
-	if err != nil {
-		response.ServiceErr(c, err)
-		return
+	//获取query参数
+	pageNo := c.Query("page")
+	//转化为数字类型
+	pageNoInt, _ := strconv.Atoi(pageNo)
+	pageSize := c.Query("pageSize")
+	pageSizeInt, _ := strconv.Atoi(pageSize)
+	if pageNo == "" || pageSize == "" {
+		var devices []model.Device
+		err := dao.Device.Model(&model.Device{}).
+			Preload("Location").
+			Preload("NetworkInfo").
+			Preload("Security").
+			WithContext(c.Request.Context()).
+			Find(&devices).Error
+		if err != nil {
+			response.ServiceErr(c, err)
+			return
+		}
+		response.HTTPSuccess(c, devices)
 	}
-	response.HTTPSuccess(c, devices)
+	if pageNo != "" && pageSize != "" {
+		var totalDevices dto.DeviceItemPage
+		var devices []model.Device
+		err := dao.Device.Model(&model.Device{}).
+			Preload("Location").
+			Preload("NetworkInfo").
+			Preload("Security").
+			WithContext(c.Request.Context()).
+			Offset((pageNoInt - 1) * pageSizeInt).Limit(pageSizeInt).Find(&devices).Error
+		if err != nil {
+			response.ServiceErr(c, err)
+			return
+		}
+		totalDevices.Total = len(devices)
+		totalDevices.List = devices
+		response.HTTPSuccess(c, totalDevices)
+
+	}
+
 }
 
 func ListDevicesPage(c *gin.Context) {
