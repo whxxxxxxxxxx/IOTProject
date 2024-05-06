@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"regexp"
 	"strconv"
 )
 
@@ -327,4 +328,74 @@ func SearchDevices2(c *gin.Context) {
 	totalDevices.Total = len(devices)
 	totalDevices.List = devices
 	response.HTTPSuccess(c, totalDevices)
+}
+
+func StatusData(c *gin.Context) {
+	var status []struct {
+		EncryptionStatus string
+		Count            int
+	}
+	err := dao.Device.Model(&model.Security{}).
+		Select("encryption_status , count(*) as count").
+		Group("encryption_status").
+		Scan(&status).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, status)
+}
+
+func LocationData(c *gin.Context) {
+	var location []model.Location
+	err := dao.Device.Model(&model.Location{}).
+		WithContext(c.Request.Context()).
+		Find(&location).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, location)
+}
+
+func ModelData(c *gin.Context) {
+	var models []struct {
+		ModelData string
+		Count     int
+	}
+	err := dao.Device.Model(&model.Device{}).
+		Select("model_data , count(*) as count").
+		Group("model_data").
+		Scan(&models).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, models)
+}
+
+func NameData(c *gin.Context) {
+	var name []struct {
+		Name  string
+		Count int
+	}
+	err := dao.Device.Model(&model.Device{}).
+		Select("name , count(*) as count").
+		Group("name").
+		Scan(&name).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	re := regexp.MustCompile("[\u4e00-\u9fa5]+")
+	merged := make(map[string]int)
+	for _, nc := range name {
+		// 提取中文部分
+		chineseOnly := re.FindString(nc.Name)
+		if chineseOnly != "" {
+			// 如果已存在，累加数量
+			merged[chineseOnly] += nc.Count
+		}
+	}
+	response.HTTPSuccess(c, merged)
 }

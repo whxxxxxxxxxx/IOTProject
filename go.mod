@@ -14,6 +14,7 @@ require (
 	github.com/taosdata/driver-go/v3 v3.5.3
 	golang.org/x/net v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
+	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.5
 	gorm.io/gorm v1.25.8
 )

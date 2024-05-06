@@ -25,6 +25,10 @@ func AppDeviceInit(e *gin.Engine) {
 		deviceGroup.POST("/page2", handler.ListDevicesPage2)      // 分页获取设备信息
 		deviceGroup.POST("/search/page", handler.SearchDevices)   //分页搜索设备信息
 		deviceGroup.POST("/search/page2", handler.SearchDevices2) //分页搜索设备信息
+		deviceGroup.GET("/status", handler.StatusData)            // 统计设备状态信息
+		deviceGroup.GET("/location", handler.LocationData)        // 统计设备位置信息
+		deviceGroup.GET("/model", handler.ModelData)              // 统计设备类型信息
+		deviceGroup.GET("/name", handler.NameData)                // 统计设备分布信息
 	}
 
 	e.GET("/device/v1/err", func(c *gin.Context) {
