@@ -2,6 +2,7 @@ package dao
 
 import (
 	"IOTProject/internal/app/data/model"
+	"IOTProject/internal/app/data/service"
 	"database/sql"
 	"fmt"
 )
@@ -23,8 +24,12 @@ func (u *data) Init(db *sql.DB) (err error) {
 	return nil
 }
 
-func (u *data) GetDataByIdAndCurrentTime(id string, interval string) (interface{}, error) {
-	sqlSentence := fmt.Sprintf("SELECT * FROM %s WHERE ts >=NOW - %s", id, interval)
+func (u *data) GetDataByIdAndCurrentTime(id string, timeFromNow string) (interface{}, error) {
+	interval, err := service.ConvertTimeToSeconds(timeFromNow)
+	if err != nil {
+		return nil, err
+	}
+	sqlSentence := fmt.Sprintf("SELECT * FROM %s WHERE ts >=NOW - %s INTERVAL(%s)", id, timeFromNow, interval)
 	if id[0] == 's' {
 		var statusDatas []model.Status
 		//SELECT * FROM tb1 WHERE ts >= NOW - 1h;
