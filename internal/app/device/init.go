@@ -4,6 +4,7 @@ import (
 	"IOTProject/internal/app"
 	"IOTProject/internal/app/device/dao"
 	"IOTProject/internal/app/device/router"
+	"IOTProject/internal/app/device/service"
 	"IOTProject/kernel"
 	"context"
 
@@ -23,6 +24,7 @@ func (p *Device) Info() string {
 
 func (p *Device) PreInit(engine *kernel.Engine) error {
 	err := dao.InitMS(engine.SKLMySQL.DB)
+	service.UpdateDevicesList()
 	return err
 }
 

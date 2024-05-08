@@ -20,6 +20,7 @@ func AppDataInit(e *gin.Engine) {
 
 	dataGroup := e.Group("/data")
 	{
-		dataGroup.GET("/:id", handler.GetOneData) // 获取单个数据信息
+		dataGroup.GET("/:id/status", handler.GetOneStatusData)                         // 获取单个状态信息
+		dataGroup.GET("/:id/performanceMetrics", handler.GetOnePerformanceMetricsData) // 获取单个性能信息
 	}
 }

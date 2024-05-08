@@ -26,6 +26,7 @@ func (p *Data) PreInit(engine *kernel.Engine) error {
 }
 
 func (p *Data) Init(*kernel.Engine) error {
+
 	return nil
 }
 
