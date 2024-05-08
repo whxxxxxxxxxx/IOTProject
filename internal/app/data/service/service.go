@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"os/exec"
 	"strconv"
 )
 
@@ -34,4 +35,18 @@ func ConvertTimeToSeconds(timeStr string) (string, error) {
 	//整除100
 	splitData := secondData / 100
 	return fmt.Sprintf("%ds", splitData), nil
+}
+
+func SaveDataToDB() error {
+	cmd := "mqttx"
+	num := "2"
+	args := []string{"simulate", "--file", "industrial.js", "-c", num, "-h", "127.0.0.1", "-t", "mqttx/iot"}
+	command := exec.Command(cmd, args...)
+	// 启动命令
+	err := command.Start()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Command started. Waiting for 5 seconds before stopping...")
+	return nil
 }

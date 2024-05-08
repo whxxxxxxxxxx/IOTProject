@@ -4,6 +4,7 @@ import (
 	"IOTProject/internal/app"
 	"IOTProject/internal/app/data/dao"
 	"IOTProject/internal/app/data/router"
+	"IOTProject/internal/app/data/service"
 	"IOTProject/kernel"
 	"context"
 	"sync"
@@ -27,7 +28,8 @@ func (p *Data) PreInit(engine *kernel.Engine) error {
 
 func (p *Data) Init(*kernel.Engine) error {
 
-	return nil
+	err := service.SaveDataToDB()
+	return err
 }
 
 func (p *Data) PostInit(*kernel.Engine) error {
