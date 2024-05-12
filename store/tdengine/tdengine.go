@@ -92,7 +92,7 @@ func newOrm(opts ...Option) (*Orm, error) {
 		dsn := fmt.Sprintf("%s:%s@http(%s:%s)/%s",
 			m.User, m.Pass, m.Host, m.Port, m.Database)
 		db, err := sql.Open(m.DriverName, dsn)
-		_, err = db.Exec("create database if not exists " + m.Database)
+		_, err = db.Exec("create database if not exists " + m.Database + " duration 8h keep 1")
 		if err != nil {
 			return
 		}

@@ -3,6 +3,7 @@ module IOTProject
 go 1.21.1
 
 require (
+	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/fatih/color v1.16.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-contrib/cors v1.7.0
@@ -14,7 +15,6 @@ require (
 	github.com/taosdata/driver-go/v3 v3.5.3
 	golang.org/x/net v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.5
 	gorm.io/gorm v1.25.8
 )
@@ -61,6 +61,7 @@ require (
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect

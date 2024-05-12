@@ -1,49 +1,83 @@
 package service
 
 import (
+	"IOTProject/internal/app/data/dao"
+	"IOTProject/internal/app/data/dto"
+	dao2 "IOTProject/internal/app/device/dao"
+	model2 "IOTProject/internal/app/device/model"
+	"encoding/json"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"os"
 	"os/exec"
-	"strconv"
+	"time"
 )
 
-func ConvertTimeToSeconds(timeStr string) (string, error) {
-	lastChar := timeStr[len(timeStr)-1]
-	valueStr := timeStr[:len(timeStr)-1]
-	value, err := strconv.ParseInt(valueStr, 10, 64)
+var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+	var Data dto.Data
+	err := json.Unmarshal(msg.Payload(), &Data)
 	if err != nil {
-		return "", err
+		fmt.Println("Unmarshal error")
+		return
 	}
-	var secondData int64
 
-	switch lastChar {
-	case 'm':
-		if value < 2 {
-			return "", fmt.Errorf("时间间隔太短，请至少一次获取2分钟以上的数据", value)
-		}
-		secondData = value * 60
-	case 'h':
-		secondData = value * 3600
-	case 'd':
-		secondData = value * 86400
-	case 'w':
-		secondData = value * 604800
-	case 'n':
-		secondData = value * 2592000 // Approximation: average seconds in a month
-	case 'y':
-		secondData = value * 31536000 // Approximation: average seconds in a year
+	Data.Status.Ts = time.Unix(Data.TimeStamp, 0)
+	Data.PerformanceMetrics.Ts = time.Unix(Data.TimeStamp, 0)
+
+	go dao.Data.InsertDataById(Data)
+	if err != nil {
+		fmt.Println("InsertDataById error")
+		return
 	}
-	//整除100
-	splitData := secondData / 100
-	return fmt.Sprintf("%ds", splitData), nil
+}
+
+var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+	fmt.Println("Connected")
+}
+
+var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
+	fmt.Printf("Connect lost: %v", err)
 }
 
 func SaveDataToDB() error {
+	var broker = "tcp://127.0.0.1:1883"
+	var topic = "mqttx/iot"
+
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(broker)
+	opts.SetClientID("go_mqtt_client")
+	opts.SetUsername("user")
+	opts.SetPassword("password")
+	opts.OnConnect = connectHandler
+	opts.OnConnectionLost = connectLostHandler
+	opts.SetDefaultPublishHandler(messagePubHandler)
+
+	client := mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		os.Exit(1)
+	}
+	client.Subscribe(topic, 1, nil)
+	return nil
+}
+
+func CreateDataFromJs() error {
 	cmd := "mqttx"
-	num := "2"
+	var num string
+
+	var count int64
+
+	err := dao2.Device.Model(&model2.Device{}).Count(&count).Error
+	if err != nil {
+		return err
+	}
+	num = fmt.Sprintf("%d", count)
+
 	args := []string{"simulate", "--file", "industrial.js", "-c", num, "-h", "127.0.0.1", "-t", "mqttx/iot"}
 	command := exec.Command(cmd, args...)
 	// 启动命令
-	err := command.Start()
+	err = command.Start()
 	if err != nil {
 		return err
 	}

@@ -9,9 +9,10 @@ import (
 
 func GetOneStatusData(c *gin.Context) {
 	id := c.Param("id")
+	interval := c.Param("interval")
 	var status []model.Status
 	statusId := "s" + id
-	tmp, err := dao.Data.GetDataByIdAndCurrentTime(statusId, "1h")
+	tmp, err := dao.Data.GetDataByIdAndCurrentTime(statusId, interval)
 	status = tmp.([]model.Status)
 	if err != nil {
 		response.ServiceErr(c, err)
@@ -21,9 +22,10 @@ func GetOneStatusData(c *gin.Context) {
 
 func GetOnePerformanceMetricsData(c *gin.Context) {
 	id := c.Param("id")
+	interval := c.Param("interval")
 	var performanceMetrics []model.PerformanceMetrics
 	performanceMetricsId := "p" + id
-	tmp, err := dao.Data.GetDataByIdAndCurrentTime(performanceMetricsId, "1h")
+	tmp, err := dao.Data.GetDataByIdAndCurrentTime(performanceMetricsId, interval)
 	performanceMetrics = tmp.([]model.PerformanceMetrics)
 	if err != nil {
 		response.ServiceErr(c, err)

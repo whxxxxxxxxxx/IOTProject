@@ -28,7 +28,11 @@ func (p *Data) PreInit(engine *kernel.Engine) error {
 
 func (p *Data) Init(*kernel.Engine) error {
 
-	err := service.SaveDataToDB()
+	err := service.CreateDataFromJs()
+	if err != nil {
+		return err
+	}
+	err = service.SaveDataToDB()
 	return err
 }
 

@@ -43,12 +43,14 @@ const generator = (faker, options) => {
         };
         i = (i + 1) % deviceIds.length; // 循环使用deviceIds数组中的值
     }
+    let tmLoc = new Date();
+    let now = tmLoc.getTime() + tmLoc.getTimezoneOffset() * 60000;
 
     const data = {
         ...dataCache[clientId],
         status: generateStatusData(faker),
         performanceMetrics: generatePerformanceMetricsData(faker),
-        timestamp: Date.now(),
+        timeStamp: Math.floor(now/ 1000),
     };
     return {
         message: JSON.stringify(data),
