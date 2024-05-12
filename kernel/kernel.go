@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os/exec"
 )
 
 type (
@@ -19,8 +18,6 @@ type (
 
 		Ctx    context.Context
 		Cancel context.CancelFunc
-
-		JSCmd *exec.Cmd
 
 		HttpServer *http.Server
 

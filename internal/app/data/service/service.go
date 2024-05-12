@@ -5,6 +5,7 @@ import (
 	"IOTProject/internal/app/data/dto"
 	dao2 "IOTProject/internal/app/device/dao"
 	model2 "IOTProject/internal/app/device/model"
+	"context"
 	"encoding/json"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -12,6 +13,14 @@ import (
 	"os/exec"
 	"time"
 )
+
+type Cmd struct {
+	Cmd      *exec.Cmd
+	JSCancel context.CancelFunc
+	Ctx      context.Context
+}
+
+var CmdStruct *Cmd
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
@@ -62,22 +71,28 @@ func SaveDataToDB() error {
 	return nil
 }
 
-func CreateDataFromJs() *exec.Cmd {
-	var Cmd *exec.Cmd
+func CreateDataFromJs() error {
 	cmd := "mqttx"
 	var num string
 
 	var count int64
 	err := dao2.Device.Model(&model2.Device{}).Count(&count).Error
+
 	if err != nil {
-		return nil
+		return err
 	}
+
 	num = fmt.Sprintf("%d", count)
 
 	args := []string{"simulate", "--file", "industrial.js", "-c", num, "-h", "127.0.0.1", "-t", "mqttx/iot"}
-	Cmd = exec.Command(cmd, args...)
+	ctx, cancel := context.WithCancel(context.Background())
+
+	CmdStruct = &Cmd{Ctx: ctx, JSCancel: cancel}
+	CmdStruct.Cmd = exec.CommandContext(CmdStruct.Ctx, cmd, args...)
 	// 启动命令
-	Cmd.Start()
-	fmt.Println("Command started. Waiting for 5 seconds before stopping...")
-	return Cmd
+	err = CmdStruct.Cmd.Start()
+	if err != nil {
+		return err
+	}
+	return nil
 }
