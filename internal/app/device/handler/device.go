@@ -4,6 +4,7 @@ import (
 	"IOTProject/internal/app/device/dao"
 	"IOTProject/internal/app/device/dto"
 	"IOTProject/internal/app/device/model"
+	"IOTProject/internal/app/device/service"
 	model2 "IOTProject/internal/model"
 	"IOTProject/middleware/response"
 	"errors"
@@ -45,6 +46,12 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
+	service.UpdateDevicesList()
+	err = service.RestartCmd()
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
 	response.HTTPSuccess(c, nil)
 
 }
@@ -63,6 +70,14 @@ func DeleteDevice(c *gin.Context) {
 		response.ServiceErr(c, err)
 		return
 	}
+
+	service.UpdateDevicesList()
+	err = service.RestartCmd()
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+
 	response.HTTPSuccess(c, nil)
 }
 

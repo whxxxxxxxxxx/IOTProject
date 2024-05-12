@@ -3,8 +3,11 @@ package service
 import (
 	"IOTProject/internal/app/device/dao"
 	"IOTProject/internal/app/device/model"
+	"IOTProject/kernel"
 	"fmt"
 	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -34,4 +37,27 @@ func UpdateDevicesList() {
 		fmt.Println("Error writing to file:", err)
 	}
 
+}
+
+func RestartCmd() error {
+	var err error
+	cmd := kernel.Kernel.JSCmd.Path
+	args := kernel.Kernel.JSCmd.Args[1:]
+	num, _ := strconv.Atoi(args[4])
+	num = num + 1
+	args[4] = strconv.Itoa(num)
+
+	if kernel.Kernel.JSCmd != nil && kernel.Kernel.JSCmd.Process != nil {
+		err = kernel.Kernel.JSCmd.Process.Kill()
+	}
+	if err != nil {
+		return err
+	}
+	kernel.Kernel.JSCmd = nil
+	kernel.Kernel.JSCmd = exec.Command(cmd, args...)
+	err = kernel.Kernel.JSCmd.Start()
+	if err != nil {
+		return err
+	}
+	return nil
 }

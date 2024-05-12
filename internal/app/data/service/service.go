@@ -62,25 +62,22 @@ func SaveDataToDB() error {
 	return nil
 }
 
-func CreateDataFromJs() error {
+func CreateDataFromJs() *exec.Cmd {
+	var Cmd *exec.Cmd
 	cmd := "mqttx"
 	var num string
 
 	var count int64
-
 	err := dao2.Device.Model(&model2.Device{}).Count(&count).Error
 	if err != nil {
-		return err
+		return nil
 	}
 	num = fmt.Sprintf("%d", count)
 
 	args := []string{"simulate", "--file", "industrial.js", "-c", num, "-h", "127.0.0.1", "-t", "mqttx/iot"}
-	command := exec.Command(cmd, args...)
+	Cmd = exec.Command(cmd, args...)
 	// 启动命令
-	err = command.Start()
-	if err != nil {
-		return err
-	}
+	Cmd.Start()
 	fmt.Println("Command started. Waiting for 5 seconds before stopping...")
-	return nil
+	return Cmd
 }

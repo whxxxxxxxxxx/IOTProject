@@ -26,13 +26,11 @@ func (p *Data) PreInit(engine *kernel.Engine) error {
 	return err
 }
 
-func (p *Data) Init(*kernel.Engine) error {
+func (p *Data) Init(engine *kernel.Engine) error {
 
-	err := service.CreateDataFromJs()
-	if err != nil {
-		return err
-	}
-	err = service.SaveDataToDB()
+	engine.JSCmd = service.CreateDataFromJs()
+
+	err := service.SaveDataToDB()
 	return err
 }
 
