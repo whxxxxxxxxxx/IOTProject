@@ -1,14 +1,10 @@
 package service
 
 import (
-	service2 "IOTProject/internal/app/data/service"
 	"IOTProject/internal/app/device/dao"
 	"IOTProject/internal/app/device/model"
-	"context"
 	"fmt"
 	"os"
-	"os/exec"
-	"strconv"
 	"strings"
 )
 
@@ -38,29 +34,4 @@ func UpdateDevicesList() {
 		fmt.Println("Error writing to file:", err)
 	}
 
-}
-
-func RestartCmd() error {
-	var err error
-
-	cmd := service2.CmdStruct.Cmd.Path
-	args := service2.CmdStruct.Cmd.Args[1:]
-	num, _ := strconv.Atoi(args[4])
-	num = num + 1
-	args[4] = strconv.Itoa(num)
-
-	service2.CmdStruct.JSCancel()
-
-	if err != nil {
-		return err
-	}
-
-	service2.CmdStruct.Ctx, service2.CmdStruct.JSCancel = context.WithCancel(context.Background())
-	service2.CmdStruct.Cmd = exec.CommandContext(service2.CmdStruct.Ctx, cmd, args...)
-
-	err = service2.CmdStruct.Cmd.Start()
-	if err != nil {
-		return err
-	}
-	return nil
 }

@@ -1,0 +1,1 @@
+mqttx simulate --file industrial.js -c 1 -h 127.0.0.1 -t mqttx/iot

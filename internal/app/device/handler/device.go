@@ -47,7 +47,6 @@ func CreateDevice(c *gin.Context) {
 	}
 
 	service.UpdateDevicesList()
-	err = service.RestartCmd()
 	if err != nil {
 		response.ServiceErr(c, err)
 		return
@@ -72,7 +71,6 @@ func DeleteDevice(c *gin.Context) {
 	}
 
 	service.UpdateDevicesList()
-	err = service.RestartCmd()
 	if err != nil {
 		response.ServiceErr(c, err)
 		return

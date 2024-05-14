@@ -3,8 +3,6 @@ package service
 import (
 	"IOTProject/internal/app/data/dao"
 	"IOTProject/internal/app/data/dto"
-	dao2 "IOTProject/internal/app/device/dao"
-	model2 "IOTProject/internal/app/device/model"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -68,31 +66,5 @@ func SaveDataToDB() error {
 		os.Exit(1)
 	}
 	client.Subscribe(topic, 1, nil)
-	return nil
-}
-
-func CreateDataFromJs() error {
-	cmd := "mqttx"
-	var num string
-
-	var count int64
-	err := dao2.Device.Model(&model2.Device{}).Count(&count).Error
-
-	if err != nil {
-		return err
-	}
-
-	num = fmt.Sprintf("%d", count)
-
-	args := []string{"simulate", "--file", "industrial.js", "-c", num, "-h", "127.0.0.1", "-t", "mqttx/iot"}
-	ctx, cancel := context.WithCancel(context.Background())
-
-	CmdStruct = &Cmd{Ctx: ctx, JSCancel: cancel}
-	CmdStruct.Cmd = exec.CommandContext(CmdStruct.Ctx, cmd, args...)
-	// 启动命令
-	err = CmdStruct.Cmd.Start()
-	if err != nil {
-		return err
-	}
 	return nil
 }
