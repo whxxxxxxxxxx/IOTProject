@@ -4,12 +4,15 @@ import (
 	"IOTProject/internal/app/device/dao"
 	"IOTProject/internal/app/device/dto"
 	"IOTProject/internal/app/device/model"
+	"IOTProject/internal/app/device/service"
 	model2 "IOTProject/internal/model"
 	"IOTProject/middleware/response"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"regexp"
+	"strconv"
 )
 
 func CreateDevice(c *gin.Context) {
@@ -43,6 +46,11 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
+	service.UpdateDevicesList()
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
 	response.HTTPSuccess(c, nil)
 
 }
@@ -61,6 +69,13 @@ func DeleteDevice(c *gin.Context) {
 		response.ServiceErr(c, err)
 		return
 	}
+
+	service.UpdateDevicesList()
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+
 	response.HTTPSuccess(c, nil)
 }
 
@@ -123,18 +138,45 @@ func GetDevice(c *gin.Context) {
 }
 
 func ListDevices(c *gin.Context) {
-	var devices []model.Device
-	err := dao.Device.Model(&model.Device{}).
-		Preload("Location").
-		Preload("NetworkInfo").
-		Preload("Security").
-		WithContext(c.Request.Context()).
-		Find(&devices).Error
-	if err != nil {
-		response.ServiceErr(c, err)
-		return
+	//获取query参数
+	pageNo := c.Query("page")
+	//转化为数字类型
+	pageNoInt, _ := strconv.Atoi(pageNo)
+	pageSize := c.Query("pageSize")
+	pageSizeInt, _ := strconv.Atoi(pageSize)
+	if pageNo == "" || pageSize == "" {
+		var devices []model.Device
+		err := dao.Device.Model(&model.Device{}).
+			Preload("Location").
+			Preload("NetworkInfo").
+			Preload("Security").
+			WithContext(c.Request.Context()).
+			Find(&devices).Error
+		if err != nil {
+			response.ServiceErr(c, err)
+			return
+		}
+		response.HTTPSuccess(c, devices)
 	}
-	response.HTTPSuccess(c, devices)
+	if pageNo != "" && pageSize != "" {
+		var totalDevices dto.DeviceItemPage
+		var devices []model.Device
+		err := dao.Device.Model(&model.Device{}).
+			Preload("Location").
+			Preload("NetworkInfo").
+			Preload("Security").
+			WithContext(c.Request.Context()).
+			Offset((pageNoInt - 1) * pageSizeInt).Limit(pageSizeInt).Find(&devices).Error
+		if err != nil {
+			response.ServiceErr(c, err)
+			return
+		}
+		totalDevices.Total = len(devices)
+		totalDevices.List = devices
+		response.HTTPSuccess(c, totalDevices)
+
+	}
+
 }
 
 func ListDevicesPage(c *gin.Context) {
@@ -299,4 +341,74 @@ func SearchDevices2(c *gin.Context) {
 	totalDevices.Total = len(devices)
 	totalDevices.List = devices
 	response.HTTPSuccess(c, totalDevices)
+}
+
+func StatusData(c *gin.Context) {
+	var status []struct {
+		EncryptionStatus string
+		Count            int
+	}
+	err := dao.Device.Model(&model.Security{}).
+		Select("encryption_status , count(*) as count").
+		Group("encryption_status").
+		Scan(&status).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, status)
+}
+
+func LocationData(c *gin.Context) {
+	var location []model.Location
+	err := dao.Device.Model(&model.Location{}).
+		WithContext(c.Request.Context()).
+		Find(&location).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, location)
+}
+
+func ModelData(c *gin.Context) {
+	var models []struct {
+		ModelData string
+		Count     int
+	}
+	err := dao.Device.Model(&model.Device{}).
+		Select("model_data , count(*) as count").
+		Group("model_data").
+		Scan(&models).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	response.HTTPSuccess(c, models)
+}
+
+func NameData(c *gin.Context) {
+	var name []struct {
+		Name  string
+		Count int
+	}
+	err := dao.Device.Model(&model.Device{}).
+		Select("name , count(*) as count").
+		Group("name").
+		Scan(&name).Error
+	if err != nil {
+		response.ServiceErr(c, err)
+		return
+	}
+	re := regexp.MustCompile("[\u4e00-\u9fa5]+")
+	merged := make(map[string]int)
+	for _, nc := range name {
+		// 提取中文部分
+		chineseOnly := re.FindString(nc.Name)
+		if chineseOnly != "" {
+			// 如果已存在，累加数量
+			merged[chineseOnly] += nc.Count
+		}
+	}
+	response.HTTPSuccess(c, merged)
 }

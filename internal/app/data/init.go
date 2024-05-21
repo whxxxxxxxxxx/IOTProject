@@ -2,7 +2,9 @@ package data
 
 import (
 	"IOTProject/internal/app"
+	"IOTProject/internal/app/data/dao"
 	"IOTProject/internal/app/data/router"
+	"IOTProject/internal/app/data/service"
 	"IOTProject/kernel"
 	"context"
 	"sync"
@@ -20,12 +22,13 @@ func (p *Data) Info() string {
 }
 
 func (p *Data) PreInit(engine *kernel.Engine) error {
-	//dao.InitMS(engine.SKLMySQL.DB)
-	return nil
+	err := dao.InitTD(engine.TDEngine.DB)
+	return err
 }
 
-func (p *Data) Init(*kernel.Engine) error {
-	return nil
+func (p *Data) Init(engine *kernel.Engine) error {
+	err := service.SaveDataToDB()
+	return err
 }
 
 func (p *Data) PostInit(*kernel.Engine) error {

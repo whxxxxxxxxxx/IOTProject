@@ -17,7 +17,7 @@ TDEngine:
     Port: "6041"
     User: "root"
     Pass: "taosdata"
-    Database: "power"
+    Database: "Iot"
     DriverName: "taosRestful"
 
 

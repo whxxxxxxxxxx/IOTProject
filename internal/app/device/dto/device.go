@@ -1,6 +1,8 @@
 package dto
 
-import "IOTProject/internal/app/device/model"
+import (
+	"IOTProject/internal/app/device/model"
+)
 
 type DeviceItem struct {
 	DeviceId     string `json:"device_id"`
@@ -43,4 +45,16 @@ type DeviceItemSearchReq struct {
 	Name         string            `json:"name"`
 	Model        string            `json:"model"`
 	SerialNumber string            `json:"serial_number"`
+}
+
+type StatisticsData struct {
+	Enable  int
+	Disable int
+	//经纬度
+	Location []struct {
+		Latitude  float64
+		Longitude float64
+	}
+	DeviceDistribution interface{}
+	DeviceClass        interface{}
 }
