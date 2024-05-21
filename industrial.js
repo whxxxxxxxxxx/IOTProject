@@ -26,10 +26,10 @@ const generateStatusData = (faker) => {
 
 const generatePerformanceMetricsData = (faker) => {
     const baseData = {
-        temperature: faker.datatype.number({ min: 0, max: 300 }),
-        pressure: faker.datatype.number({ min: 100, max: 200 }),
-        speed: faker.datatype.number({ min: 0, max: 2000 }),
-        output: faker.datatype.number({ min: 0, max: 500 }),
+        temperature:  faker.number.int({ min: 0, max: 300 }),
+        pressure:  faker.number.int({ min: 100, max: 200 }),
+        speed:  faker.number.int({ min: 0, max: 2000 }),
+        output:  faker.number.int({ min: 0, max: 500 }),
     };
     return baseData;
 };
